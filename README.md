@@ -2,6 +2,8 @@
 
 A modern Electron application that automatically detects and plays local video files with a YouTube-style playlist interface.
 
+![Electron Video Player Screenshot](screenshot.png)
+
 ## Features
 
 - 🎬 **Automatic Video Detection** - Scans the `video/` folder and detects all video files
