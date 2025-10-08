@@ -1,0 +1,19 @@
+{
+  "name": "electron-video-player",
+  "version": "1.0.0",
+  "description": "A modern Electron app that automatically detects and plays local video files with a YouTube-style playlist",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": ["electron", "video", "player", "playlist", "youtube-style"],
+  "author": "BME",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BillelMessaadi/electronjs-local-video-player"
+  },
+  "devDependencies": {
+    "electron": "^38.2.2"
+  }
+}

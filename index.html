@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' app:; style-src 'self' 'unsafe-inline'; script-src 'self'">
+  <title>Electron Video Player</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 30px;
+      max-width: 1000px;
+      width: 100%;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 2em;
+    }
+
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    video {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .info {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      color: #666;
+      font-size: 0.9em;
+    }
+
+    .info p {
+      margin: 5px 0;
+    }
+
+    .info strong {
+      color: #333;
+    }
+
+    .video-list {
+      margin-top: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    .video-list::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .video-list::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    .video-list::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 4px;
+    }
+
+    .video-list::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+
+    .video-item {
+      display: flex;
+      gap: 12px;
+      background: #f9f9f9;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      align-items: center;
+    }
+
+    .video-item:hover {
+      background: #f0f0f0;
+      border-color: #667eea;
+      transform: translateX(4px);
+      box-shadow: -4px 0 0 #667eea;
+    }
+
+    .video-item.active {
+      background: #e8e8ff;
+      border-color: #764ba2;
+      box-shadow: -4px 0 0 #764ba2;
+    }
+
+    .video-thumbnail {
+      width: 120px;
+      height: 68px;
+      background: #000;
+      border-radius: 4px;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .video-thumbnail video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .video-thumbnail-placeholder {
+      color: #666;
+      font-size: 2em;
+    }
+
+    .video-duration {
+      position: absolute;
+      bottom: 4px;
+      right: 4px;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 2px 4px;
+      border-radius: 2px;
+      font-size: 0.7em;
+      font-weight: 600;
+    }
+
+    .video-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .video-item-name {
+      font-weight: 600;
+      font-size: 0.9em;
+      color: #333;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .video-item:hover .video-item-name {
+      color: #667eea;
+    }
+
+    .video-item.active .video-item-name {
+      color: #764ba2;
+    }
+
+    .video-item-meta {
+      display: flex;
+      gap: 8px;
+      font-size: 0.75em;
+      color: #666;
+    }
+
+    .video-item-size {
+      font-size: 0.75em;
+      color: #666;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+      font-style: italic;
+    }
+
+    .error {
+      background: #fee;
+      color: #c33;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎬 Electron Video Player</h1>
+    
+    <div class="video-wrapper">
+      <video id="videoPlayer" controls>
+        Your browser does not support the video tag.
+      </video>
+    </div>
+
+    <div class="info" id="videoInfo">
+      <p><strong>Protocol:</strong> Custom app:// protocol</p>
+      <p><strong>Video Source:</strong> <span id="currentVideoSource">No video selected</span></p>
+      <p><strong>File Size:</strong> <span id="currentVideoSize">-</span></p>
+    </div>
+
+    <div id="videoListContainer">
+      <h2 style="margin-top: 20px; margin-bottom: 10px; color: #333; font-size: 1.2em;">📋 Playlist</h2>
+      <div id="videoList" class="loading">Loading videos...</div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
